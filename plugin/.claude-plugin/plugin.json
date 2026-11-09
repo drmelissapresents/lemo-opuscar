@@ -1,8 +1,12 @@
 {
   "name": "lemo-opuscar",
-  "description": "Make a film in one of the library's code-rendered styles: your agent directs, draws, scores and mixes it.",
-  "author": { "name": "Lemomo", "url": "https://github.com/lemomo-ai" },
+  "description": "Melissa's locked edition: make a film in one of the library's code-rendered styles. Starts only when Lemo is named; asks before every download.",
+  "author": {
+    "name": "Lemomo",
+    "url": "https://github.com/lemomo-ai"
+  },
   "homepage": "https://lemomo-ai.github.io/lemo-opuscar/",
-  "repository": "https://github.com/lemomo-ai/lemo-opuscar",
-  "license": "MIT"
+  "repository": "https://github.com/drmelissapresents/lemo-opuscar",
+  "license": "MIT",
+  "version": "0.1.0-melissa-2026-11-09"
 }

@@ -1,6 +1,36 @@
-# Voice tier: core/tts/tts.py (Kokoro, offline), tts_zh.py (edge-tts, online), asr_check.py (Whisper).
+# Voice tier: core/tts/tts.py (Kokoro, offline) and asr_check.py (Whisper, offline once its model is downloaded).
 # Install: sh plugin/skills/lemo-opuscar/scripts/setup.sh deps voice   (kokoro-onnx needs Python 3.11-3.13)
-kokoro-onnx
-edge-tts
-faster-whisper
-av<19   # av 19 dropped an option faster-whisper 1.2 passes when it opens a file (TypeError: metadata_errors)
+# Melissa's edition: edge-tts (Microsoft's online voices, used by tts_zh.py) is left out on purpose. No online text-to-speech.
+# Locked 2026-11-09: exact versions for Python 3.12. Top-level: kokoro-onnx faster-whisper av<19. Re-lock only in a reviewed update.
+anyio==4.16.0 ; sys_platform != 'emscripten'
+attrs==26.1.0
+av==18.1.0
+click==8.5.1
+cloudpickle==3.1.2
+colorama==0.4.6 ; sys_platform == 'win32'
+ctranslate2==4.8.5
+dlinfo==2.0.0
+espeakng-loader==0.2.4
+faster-whisper==1.2.1
+filelock==4.2.9
+flatbuffers==25.12.19
+fsspec==2026.9.0
+h11==0.16.0 ; sys_platform != 'emscripten'
+hf-xet==1.8.0 ; platform_machine == 'AMD64' or platform_machine == 'ARM64' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+httpcore2==2.16.0 ; sys_platform != 'emscripten'
+httpx2==2.16.0
+httpx2-jsfetch==1.0 ; sys_platform == 'emscripten'
+huggingface-hub==2.4.0
+idna==3.20
+joblib==1.6.0
+kokoro-onnx==0.6.1
+numpy==2.5.4
+onnxruntime==1.31.1
+packaging==26.3
+phonemizer==3.6.0
+protobuf==7.36.2
+pyyaml==6.0.3
+tokenizers==0.23.3
+tqdm==4.70.1
+truststore==0.10.5 ; sys_platform != 'emscripten'
+typing-extensions==4.16.0

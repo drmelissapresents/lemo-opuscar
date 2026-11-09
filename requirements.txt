@@ -1,8 +1,13 @@
 # Core tier: sound effects, the mix, subtitles, contact sheets. Install: sh plugin/skills/lemo-opuscar/scripts/setup.sh deps
 # More tiers: requirements-voice.txt (deps voice), requirements-music.txt (deps music), requirements-dev.txt (maintainers).
-numpy
-scipy
-soundfile
-soxr
-pillow
-fonttools
+# Locked 2026-11-09 (Melissa's edition): exact versions for Python 3.12, so every computer installs the same files.
+# Top-level packages: numpy scipy soundfile soxr pillow fonttools. Re-lock only as part of a reviewed update.
+cffi==2.1.1
+fonttools==4.68.0
+numpy==2.5.4
+pillow==13.0.0
+pycparser==3.12 ; implementation_name != 'PyPy'
+scipy==1.18.1
+soundfile==0.14.0
+soxr==1.1.0
+typing-extensions==4.16.0

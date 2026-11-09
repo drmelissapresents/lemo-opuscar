@@ -1,14 +1,19 @@
 #!/bin/sh
-# Lemo-Opuscar skill: find or install the style library, then print its path.
-#   sh setup.sh                    library ready? (clone on first run, update later) → which package tiers are installed, LIB=<path>
+# Lemo-Opuscar skill (Melissa's locked edition): find or install the style library, then print its path.
+#   sh setup.sh                    library ready? (download on first run only) → which package tiers are installed, LIB=<path>
 #   sh setup.sh deps [voice] [music]
 #                                  install packages: core = Node packages, headless browser, Python core tier;
-#                                  voice = TTS and speech check (+ the English voice model); music = pluck.py (numba)
+#                                  voice = offline Kokoro voice and speech check (+ the English voice model); music = pluck.py (numba)
 #   sh setup.sh demo <slug>        add one style's demo source and poster to the library (reference only)
-# The library is a sparse clone of the main branch: guides, core/ tools and every STYLE.md. Big assets: tools/fetch.sh.
+#   sh setup.sh update             move the library to the locked version named below. Only with Melissa's OK.
+# The library is a sparse clone of Melissa's fork at ONE locked version (the tag PIN below): guides, core/ tools and
+# every STYLE.md. It never updates itself. Big assets: tools/fetch.sh.
 # LEMO_OPUSCAR_HOME = where the library lives (default: the clone you stand in, else ~/lemo-opuscar).
 set -e
-REPO=${LEMO_OPUSCAR_REPO:-https://github.com/lemomo-ai/lemo-opuscar.git}
+# Melissa's fork only, at one locked version. No environment setting changes either; moving PIN is a reviewed change
+# in the fork (a new commit, tagged with the new name), made only after Melissa approves the update.
+REPO=https://github.com/drmelissapresents/lemo-opuscar.git
+PIN=melissa-2026-11-09
 
 # 1. Which library: $LEMO_OPUSCAR_HOME, else the clone we are standing in, else ~/lemo-opuscar
 is_lib() { [ -f "$1/AGENTS.md" ] && [ -d "$1/core/render" ]; }
@@ -30,15 +35,23 @@ apply_sparse() {
 }
 
 if [ "$(git -C "$LIB" config --get lemo.managed 2>/dev/null)" = true ]; then
-  # our own clone (nothing of the user's lives in it): match main, whatever happened upstream
-  [ "$(git -C "$LIB" remote get-url origin 2>/dev/null)" = "$REPO" ] || git -C "$LIB" remote set-url origin "$REPO"
-  if err=$(git -C "$LIB" fetch --quiet --depth 1 origin main 2>&1 && git -C "$LIB" reset --quiet --hard FETCH_HEAD 2>&1); then apply_sparse
-  else echo "! could not update $LIB (offline?); using the local copy. git: $err" | head -3; fi
+  # our own clone: never fetched on its own. It must point at Melissa's fork and sit on the locked version.
+  url=$(git -C "$LIB" remote get-url origin 2>/dev/null || true)
+  [ "$url" = "$REPO" ] || { echo "✗ $LIB downloads from '$url', not Melissa's fork ($REPO). Stopped; nothing was changed."; exit 1; }
+  have=$(git -C "$LIB" rev-parse HEAD 2>/dev/null || true)
+  want=$(git -C "$LIB" rev-parse -q --verify "refs/tags/$PIN^{commit}" 2>/dev/null || true)
+  if [ "$1" = update ]; then
+    echo "↓ moving $LIB to the locked version $PIN (from Melissa's fork)"
+    git -C "$LIB" fetch --quiet --depth 1 origin "refs/tags/$PIN:refs/tags/$PIN" || { echo "✗ could not download $PIN"; exit 1; }
+    git -C "$LIB" checkout --quiet --force "refs/tags/$PIN" && apply_sparse
+  elif [ -z "$want" ] || [ "$want" != "$have" ]; then
+    echo "! $LIB is not on the locked version $PIN. Nothing was downloaded. Ask Melissa before moving it: sh setup.sh update"
+  fi
 elif ! is_lib "$LIB"; then
   [ -e "$LIB" ] && [ -n "$(ls -A "$LIB" 2>/dev/null)" ] && { echo "✗ $LIB exists but is not the Lemo-Opuscar library. Set LEMO_OPUSCAR_HOME to another folder."; exit 1; }
   command -v git >/dev/null || { echo "✗ git is needed to download the library"; exit 1; }
-  echo "↓ downloading the style library into $LIB"
-  git clone --quiet --depth 1 --filter=blob:none --sparse --branch main "$REPO" "$LIB" || { rm -rf "$LIB"; echo "✗ download failed (offline?)"; exit 1; }
+  echo "↓ downloading the style library ($PIN, from Melissa's fork) into $LIB"
+  git clone --quiet --depth 1 --filter=blob:none --sparse --branch "$PIN" "$REPO" "$LIB" || { rm -rf "$LIB"; echo "✗ download failed (offline?)"; exit 1; }
   apply_sparse
   git -C "$LIB" config lemo.managed true
 fi
@@ -88,9 +101,7 @@ case "$1" in
     cd "$LIB"; lock_deps "sh setup.sh"
     command -v npm >/dev/null || { echo "✗ npm not found: install Node 20+ first"; exit 1; }
     if ! node_ok; then
-      npm install --no-audit --no-fund --loglevel=error
-      # npm may rewrite package-lock.json; in our own clone put it back, so the checksum stays the same
-      [ "$(git config --get lemo.managed 2>/dev/null)" = true ] && git checkout -q -- package.json package-lock.json 2>/dev/null || true
+      npm ci --no-audit --no-fund --loglevel=error   # exactly what package-lock.json lists, nothing newer
       sig package.json package-lock.json > node_modules/.lemo-ok
     fi
     node node_modules/playwright-core/cli.js install chromium-headless-shell   # the renderer's browser (a no-op when present)
@@ -112,6 +123,7 @@ case "$1" in
     done
     case " $tiers " in *" voice "*) [ -f core/tts/kokoro-v1.0.onnx ] && [ -f core/tts/voices-v1.0.bin ] || sh tools/fetch.sh voice ;; esac
     ;;
+  update) ;;   # done above
   demo)
     [ -n "$2" ] && [ -f "$LIB/styles/$2/STYLE.md" ] || { echo "usage: sh setup.sh demo <slug>  (slugs: $LIB/styles/README.md)"; exit 1; }
     if git -C "$LIB" sparse-checkout list >/dev/null 2>&1 && ! git -C "$LIB" sparse-checkout list | grep -qx "/styles/$2/demo/"; then

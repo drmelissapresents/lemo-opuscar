@@ -120,7 +120,6 @@ demo/
   tools/tts_doubao.py     optional Doubao TTS client (reads DOUBAO_API_KEY from the environment; caches takes)
   tools/fonts.sh          OFL subsets for every character in main.js
   tools/subs.py           CUES → ../news-package.srt
-  tools/gen_plates.sh, gen_image.py   make new plates with the Codex CLI (optional; see STYLE.md §10)
   tools/footage.py        footage finder with licence logging (not needed here)
   FACTS.md, SOURCES.md, CREDITS
 ```
