@@ -11,6 +11,7 @@ A fork of [lemomo-ai/lemo-opuscar](https://github.com/lemomo-ai/lemo-opuscar) (M
 5. **Starts only when named** ("Lemo", "Lemo-Opuscar" or `/lemo-opuscar`), not for any video request.
 6. **Removed:** `styles/news-package/demo/tools/gen_image.py` and `gen_plates.sh` (the Codex image helper, which read another app's chat logs).
 7. **The project's own rules win** over the library's guides (`SKILL.md`).
+8. **The stronger graphics chip on Windows** (tag `melissa-2026-11-09b`, the same day): `core/render/browser.mjs` adds `--force_high_performance_gpu` on Windows, so a computer with built-in Intel graphics plus an NVIDIA card renders on the NVIDIA (measured on the desktop: Iris Xe by default, RTX 2060 with it). `LEMO_GPU=default` turns it off.
 
 Big asset packs (`tools/fetch.sh`: voice model, instruments, HDRIs) still download from upstream's GitHub releases, because forks don't copy releases. Each file is checked against the SHA-256 in this fork's `tools/assets.json`, so a changed file is refused.
 

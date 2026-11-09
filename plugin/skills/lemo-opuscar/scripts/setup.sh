@@ -13,7 +13,7 @@ set -e
 # Melissa's fork only, at one locked version. No environment setting changes either; moving PIN is a reviewed change
 # in the fork (a new commit, tagged with the new name), made only after Melissa approves the update.
 REPO=https://github.com/drmelissapresents/lemo-opuscar.git
-PIN=melissa-2026-11-09
+PIN=melissa-2026-11-09b
 
 # 1. Which library: $LEMO_OPUSCAR_HOME, else the clone we are standing in, else ~/lemo-opuscar
 is_lib() { [ -f "$1/AGENTS.md" ] && [ -d "$1/core/render" ]; }

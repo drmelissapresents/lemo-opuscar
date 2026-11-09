@@ -4,7 +4,11 @@
 //      other systems get no forced backend. LEMO_ANGLE=metal|gl|vulkan|swiftshader… overrides it; LEMO_ANGLE=default means don't pass --use-angle.
 export const EXE = process.env.PLAYWRIGHT_CHROME || undefined;   // undefined = let playwright find it
 const angle = process.env.LEMO_ANGLE || (process.platform === 'darwin' ? 'metal' : 'default');
-export const ARGS = [...(angle === 'default' ? [] : [`--use-angle=${angle}`]), '--enable-gpu', '--ignore-gpu-blocklist', '--font-render-hinting=none', '--force-color-profile=srgb'];
+// Melissa's edition: on Windows, a computer with two graphics chips (built-in Intel + NVIDIA) gives headless Chrome the weaker
+// one by default; --force_high_performance_gpu picks the stronger one (measured 2026-11-09: Iris Xe → RTX 2060). Harmless with one
+// chip. LEMO_GPU=default leaves Chrome's own choice.
+const hiGpu = process.platform === 'win32' && process.env.LEMO_GPU !== 'default' ? ['--force_high_performance_gpu'] : [];
+export const ARGS = [...(angle === 'default' ? [] : [`--use-angle=${angle}`]), ...hiGpu, '--enable-gpu', '--ignore-gpu-blocklist', '--font-render-hinting=none', '--force-color-profile=srgb'];
 
 // A lost WebGL context leaves the page alive but no longer drawing: the frames come out blank and the render would still
 // exit 0. Two causes: a virtualised GPU (most cloud VMs and CI runners: Chrome creates the context and drops it right away),
